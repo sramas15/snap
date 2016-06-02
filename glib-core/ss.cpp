@@ -400,8 +400,10 @@ bool TSsParser::NextSlow() { // split on SplitCh
     FldV.Add(last);  last = cur;
     if (SkipEmptyFld && strlen(FldV.Last())==0) { FldV.DelLast(); } // skip empty fields
   }
-  FldV.Add(last);  // add last field
+
+  if (*last != 0) { FldV.Add(last); }  // add last field
   if (SkipEmptyFld && FldV.Empty()) { return NextSlow(); } // skip empty lines
+
   return true; 
 }
 
@@ -428,8 +430,10 @@ bool TSsParser::Next() { // split on SplitCh
     FldV.Add(last);  last = cur;
     if (SkipEmptyFld && strlen(FldV.Last())==0) { FldV.DelLast(); } // skip empty fields
   }
+
   if (*last != 0) { FldV.Add(last); }  // add last field
   if (SkipEmptyFld && FldV.Empty()) { return Next(); } // skip empty lines
+
   return true; 
 }
 
@@ -442,6 +446,7 @@ void TSsParser::ToLc() {
 
 bool TSsParser::GetInt(const int& FldN, int& Val) const {
   // parsing format {ws} [+/-] +{ddd}
+  if (FldN >= Len()) { return false; }
   int _Val = -1;
   bool Minus=false;
   const char *c = GetFld(FldN);
@@ -461,6 +466,7 @@ bool TSsParser::GetInt(const int& FldN, int& Val) const {
 
 bool TSsParser::GetUInt64(const int& FldN, uint64& Val) const {
   // parsing format {ws} [+]{ddd}
+  if (FldN >= Len()) { return false; }
   uint64 _Val=0;
   const char *c = GetFld(FldN);
   while (TCh::IsWs(*c)){ c++; }
@@ -478,6 +484,7 @@ bool TSsParser::GetUInt64(const int& FldN, uint64& Val) const {
 
 bool TSsParser::GetFlt(const int& FldN, double& Val) const {
   // parsing format {ws} [+/-] +{d} ([.]{d}) ([E|e] [+/-] +{d})
+  if (FldN >= Len()) { return false; }
   const char *c = GetFld(FldN);
   while (TCh::IsWs(*c)) { c++; }
   if (*c=='+' || *c=='-') { c++; }
